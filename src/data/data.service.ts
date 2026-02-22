@@ -14,11 +14,7 @@ const LineStringSchema = z.object({
 export class DataService {
   private readonly maxPoints: number;
 
-  constructor(private readonly db: DbService) {
-    this.maxPoints = process.env.MAX_POINTS
-      ? Number(process.env.MAX_POINTS)
-      : 20000;
-  }
+  constructor(private readonly db: DbService) {}
 
   async getInsolation(bbox: BBox): Promise<PointRow[]> {
     const [minLon, minLat, maxLon, maxLat] = bbox;
@@ -29,14 +25,12 @@ export class DataService {
              value::float8 AS value
       FROM insolation_points
       WHERE geom && ST_MakeEnvelope($1,$2,$3,$4,4326)
-      LIMIT $5;
     `;
     const r = await this.db.query<PointRow>(q, [
       minLon,
       minLat,
       maxLon,
       maxLat,
-      this.maxPoints,
     ]);
     return r.rows;
   }
@@ -51,14 +45,12 @@ export class DataService {
              value::float8 AS value
       FROM wind_points
       WHERE geom && ST_MakeEnvelope($1,$2,$3,$4,4326)
-      LIMIT $5;
     `;
     const r = await this.db.query<PointRow>(q, [
       minLon,
       minLat,
       maxLon,
       maxLat,
-      this.maxPoints,
     ]);
     return r.rows;
   }
@@ -69,7 +61,6 @@ export class DataService {
       SELECT ST_AsGeoJSON(geom) AS geojson
       FROM power_lines
       WHERE geom && ST_MakeEnvelope($1,$2,$3,$4,4326)
-      LIMIT 5000;
     `;
     const r = await this.db.query<{ geojson: string }>(q, [
       minLon,
