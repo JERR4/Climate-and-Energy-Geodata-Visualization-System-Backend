@@ -20,15 +20,15 @@ export class DataController {
     @Query(new ZodValidationPipe(QuerySchema)) q: BBoxZoomQuery,
   ) {
     const bbox = parseBBox(q.bbox);
-    clampZoom(q.zoom);
-    return await this.data.getInsolation(bbox);
+    const zoom = clampZoom(q.zoom);
+    return await this.data.getInsolation(bbox, zoom ?? 6);
   }
 
   @Get('/wind')
   async wind(@Query(new ZodValidationPipe(QuerySchema)) q: BBoxZoomQuery) {
     const bbox = parseBBox(q.bbox);
-    clampZoom(q.zoom);
-    return await this.data.getWind(bbox);
+    const zoom = clampZoom(q.zoom);
+    return await this.data.getWind(bbox, zoom ?? 6);
   }
 
   @Get('/grids')
